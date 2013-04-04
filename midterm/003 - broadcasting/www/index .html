@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>EaselJS demo: Mouse Events on Stage</title>
+	<link href="/css/demo.css" rel="stylesheet" type="text/css">
+
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+	<script src="/EaselJS/lib/easeljs-0.6.0.min.js"></script>
+
+	
+	<script>
+
+	//initializes the canvas
+
+		function init() {
+
+				var stage, label, shape, oldX, oldY, size, color, recX, recY, oldRecX, oldRecY, color2;
+				var click=false;
+
+				color2="blue";
+
+			
+
+				//initialize socket			
+				var socket = io.connect('http://localhost');
+
+				
+
+				//on recieving x coordinate from socket server - draw blue line
+				socket.on("draw1",function(data) {
+					recX=data;
+					console.log("recieved from server: " +recX);
+								shape.graphics.beginStroke(color2)
+								  .setStrokeStyle(size, "round")
+								  .moveTo(oldRecX, oldRecY)
+								  .lineTo(recX, recY);
+					stage.update();
+
+					oldRecX = recX;
+					oldRecY = recY;
+			
+					
+				
+				});
+
+				//on recieving y coordinate from socket server - draw blue line
+				socket.on("draw2",function(data) {
+					recY=data;
+					console.log("recieved from server: " + recY);
+								shape.graphics.beginStroke(color2)
+								  .setStrokeStyle(size, "round")
+								  .moveTo(oldRecX, oldRecY)
+								  .lineTo(recX, recY);
+					stage.update();
+
+					oldRecX = recX;
+					oldRecY = recY;				
+					
+				
+				});
+
+
+
+
+
+			// this is copied directly from the easel js examples
+			stage = new createjs.Stage("demoCanvas");
+			stage.enableDOMEvents(true);
+			label = new createjs.Text("finger paint", "24px Arial");
+			label.x = label.y = 10;
+			
+			shape = new createjs.Shape();
+			stage.addChild(shape, label);
+			
+
+			//the code below initializes the client side drawing functionality-drawing in red
+
+
+			// set up our defaults:
+			color = "red";
+			size = 4;
+			
+			// add handler for stage mouse events:
+
+
+
+
+
+			//when the mouse is down, turn on drawing in red
+			stage.addEventListener("stagemousedown", function(event) {
+				size = 4;
+				click=true;
+			})                
+			
+
+			// when the mouse is up, turn off drawing
+			stage.addEventListener("stagemouseup", function(event) {
+				//color = createjs.Graphics.getHSL(Math.random()*360, 100, 50);
+				size = 4;
+				click=false;
+			})
+			 
+			
+		    stage.addEventListener("stagemousemove",function(evt) {
+
+
+		    	//if the mouse is down we will do the drawing
+
+
+				if ( click) {
+
+					shape.graphics.beginStroke(color)
+								  .setStrokeStyle(size, "round")
+								  .moveTo(oldX, oldY)
+								  .lineTo(evt.stageX, evt.stageY);
+					stage.update();
+					//send drawing coordinates to server so other clients can see what we are drawing
+					socket.emit("drawToServer1",oldX);
+					socket.emit("drawToServer2",oldY);
+				}
+				oldX = evt.stageX;
+				oldY = evt.stageY;
+			})
+			
+			stage.update();
+		}
+
+	</script>
+
+	<style>
+
+		.content{
+
+			margin-top: -800px;
+			z-index: 3;
+		}
+
+		.canvas{
+
+			z-index: 2;
+			
+		}
+
+
+	</style>
+</head>
+<body onLoad="init();">
+	<div class="canvas">
+		
+		<canvas id="demoCanvas" width="1028" height="800"></canvas>
+	
+	</div>
+
+	<!--this is where the iframe is, we will DOM/Javascript to change the src later-->
+	<div class="content">
+
+		<iframe src="http://www.wired.com" width="1028" height="800" frameborder="0" scrolling="no"></iframe>
+	
+	</div>
+
+
+</body>
+</html>
