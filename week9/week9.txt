@@ -1,0 +1,1 @@
+This week we are working with the oscP5 library and sending the same animation between two different Processing sketches. For homework I added a second ball to the class example. 
