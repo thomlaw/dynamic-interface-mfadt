@@ -5,6 +5,8 @@ int x = 0; //varibale x at global scope
 int y = 0;
 int foo = 0; //varibale x at global scope
 int bar = 0;
+int ball1 = 0; //varibale x at global scope
+int ball2 = 0;
 
 int ballWidth = 25;
 int ballHeight = 25;
@@ -25,23 +27,40 @@ void setup() {
 void draw(){
   
   background(0);
-  fill(255,255,0);
+  //fill(0,255,0);
 
   
   pushMatrix();{
     translate(-width,0);
-    ellipse(x,y,ballWidth,ballHeight);
-//    ellipse(foo,bar,ballWidth,ballHeight);
+     ellipse(x,y,ballWidth,ballHeight);
+     fill(0,255,0);
   }popMatrix();
   
+  pushMatrix();{
+    translate(-width,0);
+    ellipse(foo,bar,ballWidth,ballHeight);
+    fill(255,0,255);
+  }popMatrix();
+  
+  pushMatrix();{
+    translate(-width,0);
+    ellipse(ball1,ball2,ballWidth,ballHeight);
+    fill(0,255,255);
+  }popMatrix();
+    fill(0,255,255);fill(0,255,255);
 }
+  
+
 
 void oscEvent(OscMessage message){ //automatically called when osc messgaed is called on that port
-  if(message.checkAddrPattern("/update") == true){
+//  if(message.checkAddrPattern("/update") == true){
     x = message.get(0).intValue();
     y = message.get(1).intValue();
-  }
-
+    foo = message.get(2).intValue();
+    bar = message.get(3).intValue();
+    ball1 = message.get(4).intValue();
+    ball2 = message.get(5).intValue();
+//  }
 }
 
 
